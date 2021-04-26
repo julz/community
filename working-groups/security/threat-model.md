@@ -10,6 +10,32 @@ their impact on the threat model.
 threat model evisioned by the knative community, but we have to start
 somewhere.
 
+## Tenancy Model
+
+There are three common tenancy models currently in use in the Kubernetes
+Ecosystem (See
+[https://kubernetes.io/blog/2021/04/15/three-tenancy-models-for-kubernetes/](https://kubernetes.io/blog/2021/04/15/three-tenancy-models-for-kubernetes/)).
+Summarising here, in the first, a cluster is fully owned by a single tenant
+(Cluster-as-a-service).
+In the second, a cluster is partitioned between multiple tenants with the
+Namespace forming a security boundary between tenants of the cluster
+(Namspace-as-a-service).
+In the third, resources such as nodes and schedulers are shared, but the
+tenants, are presented with a logical cluster and can perform global operations
+such as installing CRDs and managing namespaces (Control-plane-as-a-service).
+
+Currently, Knative assumes a single tenant per cluster (Cluster-as-a-service)
+as its security model.
+
+It is possible, with extra work, to secure Knative for use in
+Namespace-as-a-service environments, for example by setting up appropriate
+NetworkPolicy, using appropriate container isolation techniques, and filtering
+requests to shared components such as the activator. The project aims to
+eventually support secure use in Namespace-as-a-service environments out of the
+box, and is very receptive to PRs that improve support for
+Namespace-as-a-service clusters, but we do not currently view exploits in this
+environment as vulnerabilities for the purpose of our disclosure policy.
+
 ## Trusted and untrusted workloads
 
 Knative is often used to implement platforms which permit users to submit code
@@ -35,15 +61,6 @@ Availability attacks (particularly where exploitable without the ability to
 submit workloads), but are aware that these currently exist both within Knative
 and the underlying Kubernetes platform. For this reason availability attacks
 are currently treated as relatively lower priority.
-
-## Multitenancy in a single cluster
-
-The project differentiates between environments where a single tenant is in
-control of the cluster (or trusts all other tenants in the cluster), and
-environments where multiple tenants share a single cluster. In the latter case
-we assume each tenant owns a namespace, and that appropriate network and access
-control policies at the cluster level are defined. In no case do we assume a
-security boundary exists between two workloads deployed to the same namespace.
 
 ## Security of the underlying Cluster
 
